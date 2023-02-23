@@ -1,0 +1,11 @@
+form{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+  align-items: center;
+}
+form input, textarea{
+  padding: 1rem;
+  width: 50%;
+}

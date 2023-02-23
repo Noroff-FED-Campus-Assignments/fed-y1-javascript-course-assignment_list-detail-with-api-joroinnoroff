@@ -12,11 +12,20 @@
     <meta name="author" content="_YOUR_NAME_" />
     <link rel="stylesheet" href="/style.css" />
     <!-- TODO: Import Javascript -->
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBtl7gUjnEfqwbz2KCSpetrscBkYJG2Bjw&libraries=places&callback=initMap&solution_channel=GMP_QB_addressselection_v1_cABC"
+      async
+      defer
+    ></script>
+
+    <script src="/src/js/maps.js"></script>
+    <script type="module" src="/src/js/nav.js"></script>
     <title>Contact Us | _REPLACE_SITE_NAME</title>
   </head>
   <body class="animate__animated animate__fadeIn">
     <header class="l-header">
       <h1>Contact Us</h1>
+      <my-nav></my-nav>
     </header>
 
     <main class="l-main">
@@ -28,11 +37,184 @@
 
       <section role="form-section">
         <!-- TODO: Creat Form elements here -->
+        <p id="js-message-container" class="erorr"></p>
+
+        <form class="c-form" id="js-form" autocomplete="on">
+          <div class="form-group">
+            <label for="js-name">Name</label>
+            <input type="text" id="js-name" required />
+            <p class="validation-container" data-id="js-validation-message"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="js-email">Email</label>
+            <input type="text" id="js-email" required />
+            <p class="validation-container" data-id="js-validation-message"></p>
+          </div>
+
+          <p>If you have documents you wish to upload do so here.</p>
+          <input
+            id="kontakt-Clientfiles--1438282865"
+            multiple=""
+            name="d419fdcd"
+            type="file"
+          />
+
+          <div class="form-group">
+            <label for="js-message"></label>
+            <textarea name="js-message" id="" cols="30" rows="10"></textarea>
+            <p class="validation-container" data-id="js-validation-message"></p>
+          </div>
+
+          <button type="reset">Reset form</button>
+          <button type="submit">Submit</button>
+        </form>
       </section>
     </main>
 
     <footer class="l-footer">
       <small>Created with ❤️ by _REPLACE_</small>
     </footer>
+
+    <script type="module" defer>
+      const formEl = document.querySelector("#js-form");
+      const nameEl = document.querySelector("#js-name");
+      const emailEl = document.querySelector("#js-email");
+      const addressEl = document.querySelector("#js-address");
+      const textBx = document.querySelector("#js-message-box");
+
+      const submitBtn = document.querySelector("#submit");
+      const validationContainer = document.querySelector(
+        "#js-validation-message"
+      );
+
+      // Minmum 2 characters, must be letters only
+      const minLengthRegex = /^[a-zA-Z]{2,}/;
+
+      // Email Validation as per RFC2822 standards.
+      const emailRegex =
+        /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+
+      // - at least 8 characters
+      // - must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number
+      // - Can contain special characters
+      const passwordRegex =
+        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+
+      // max 25 characters in message box
+      const textRegex = /^.{0,50}$/gm;
+
+      formEl.addEventListener("submit", (event) => {
+        // Stop the form from reloading the page
+        event.preventDefault();
+
+        const name = nameEl.value;
+        const email = emailEl.value;
+        const address = addressEl.value;
+        const textbox = textBx.value;
+
+        const isNameValid = validateField(nameEl, minLengthRegex);
+        const isEmailValid = validateField(emailEl, emailRegex);
+        const isaddressValid = validateField(addressEl, minLengthRegex);
+        const isTextboxValid = validateField(textBx, textRegex);
+
+        messageContainerEl.innerHTML = "";
+
+        if (!nameValid) {
+          alert("please enter a Name");
+          return;
+        }
+
+        if (!emailValid) {
+          alert("please Write your Email");
+          return;
+        }
+
+        if (!addressValid) {
+          alert("please write your Address");
+          return;
+        }
+
+        if (!isTextboxValid) {
+          alert("please enter how you feel before submitting");
+          return;
+        }
+
+        submitForm(name, email, address, textBox);
+      });
+
+      const validateName = () => validateField(event.target, minLengthRegex);
+      nameEl.addEventListener("input", validateName);
+      nameEl.addEventListener("blur", validateName);
+
+      const validateEmail = () => validateField(event.target, emailRegex);
+      emailEl.addEventListener("input", validateEmail);
+      emailEl.addEventListener("blur", validateEmail);
+
+      function validateField(field, regex, errorMessage) {
+        const value = field.value.trim();
+        const validationMessageEl = field.parentNode.querySelector("[data-id]");
+
+        if (regex.test(value) && value !== "") {
+          field.classList.add("is-success");
+          field.classList.remove("is-error");
+
+          displayError(validationMessageEl);
+          return true;
+        } else {
+          field.classList.add("is-error");
+          field.classList.remove("is-success");
+
+          displayError(
+            validationMessageEl,
+            errorMessage || "Please enter a valid value"
+          );
+          return false;
+        }
+      }
+
+      function displayError(container, error = "") {
+        container.innerHTML = error;
+      }
+
+      function resetForm() {
+        formEl.reset();
+
+        nameEl.classList.remove("is-success");
+        emailEl.classList.remove("is-success");
+        textBx.classList.remove("is-success");
+
+        document.querySelectorAll("[data-id]").forEach((el) => {
+          el.innerHTML = "";
+        });
+      }
+
+      // SUbmit the form data to the server
+      async function submitForm(name, email, password) {
+        try {
+          const response = await fetch("/api/form", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name,
+              email,
+              textbox,
+            }),
+          });
+
+          alert("Form submitted");
+          const data = await response.json();
+          console.log(data);
+        } catch (error) {
+          console.log(error);
+
+          displayError(messageContainerEl, error);
+        } finally {
+          resetForm();
+        }
+      }
+    </script>
   </body>
 </html>

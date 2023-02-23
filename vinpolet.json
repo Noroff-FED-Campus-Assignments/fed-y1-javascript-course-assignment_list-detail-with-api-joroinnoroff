@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+      "email": {
+          "type": "string",
+          "description": "oinojorgen@gmail.com"
+      },
+      "roleId": {
+          "type": "string",
+          "description": "To call API for school project - NorOff"
+      },
+      "mainRoleId": {
+          "type": "string",
+          "description": "To call API for school project - NorOff"
+      },
+      "active": {
+          "enum": [
+              true,
+              false
+          ],
+          "type": "boolean",
+          "description": "Active"
+      }
+  }
+}

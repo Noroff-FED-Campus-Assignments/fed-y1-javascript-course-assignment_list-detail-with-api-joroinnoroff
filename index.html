@@ -12,10 +12,13 @@
     <meta name="author" content="_YOUR_NAME_" />
     <link rel="stylesheet" href="/style.css" />
     <!-- TODO: Import Javascript -->
+    <script type="module" src="/src/js/nav.js"></script>
+    <script src="main.js"></script>
     <title>_REPLACE_SITE_NAME</title>
   </head>
   <body class="animate__animated animate__fadeIn">
     <header class="l-header">
+      <my-nav></my-nav>
       <h1>Home</h1>
     </header>
 
@@ -29,12 +32,71 @@
       </article>
 
       <section role="list">
-        <div id="js-list-container">_LOADING_INDICATOR_GOES_HERE_</div>
+        <div id="js-list-container">
+          <div class="loader"></div>
+        </div>
       </section>
     </main>
 
     <footer class="l-footer">
       <small>Created with ❤️ by _REPLACE_</small>
     </footer>
+
+    <script type="module" defer>
+      const resultsContainer = document.querySelector(".results");
+
+      const url =
+        "https://apis.vinmonopolet.no/products/v0/details-normal[?productId][&vendorId][&manufacturerId][&wholesalerId][&changedSince][&productShortNameContains][&maxResults][&start]";
+      // do i need to use keyword as url or as website shows ? here in url its ?productId and in website its basic.productId if you look at the bottom of page here
+      // https://api.vinmonopolet.no/api-details#api=products&operation=GET_DETAILS_NORMAL
+
+      // i also have url for getting Photos can i add another line under 49 with const photoUrl?
+      // https://bilder.vinmonopolet.no/cache/300x300-0/146101-1.jpg
+
+      async function fetchVines() {
+        try {
+          const response = await fetch(url);
+          const json = await response.json();
+
+          console.log(json);
+
+          resultsContainer.innerHTML = "";
+
+          const vines = json.results;
+
+          vines.forEach(function (vine) {
+            resultsContainer.innerHTML += `
+            <a href="/details.html?id=${basic.productId}" class="card">
+            
+                <div class="details">
+                    <h4 class="name">${basic.productShortName}</h4>                                                                                                                                                        
+                </div>`;
+          });
+        } catch (error) {
+          console.log(error);
+          resultsContainer.innerHTML = message("error", error);
+        }
+      }
+
+      fetchVines();
+
+      /* code under is copied from vinmonopolets APi site 
+      https://api.vinmonopolet.no/api-details#api=products&operation=GET_DETAILS_NORMAL
+      
+      Where do i put the header and subscription key in code above ? is it at line 62? 
+      fetch("https://apis.vinmonopolet.no/products/v0/details-normal", {
+        method: "GET",
+        // Request headers
+        headers: {
+          "Cache-Control": "no-cache",
+          "Ocp-Apim-Subscription-Key": "4ab536f32f954bc28292349731daf0e1",
+        },
+      })
+        .then((response) => {
+          console.log(response.status);
+          console.log(response.text());
+        })
+        .catch((err) => console.error(err));*/
+    </script>
   </body>
 </html>
